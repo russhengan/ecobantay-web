@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Truck Inventory - EcoBantay Staff</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/ecobantay-icon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+    <style>
+      body{margin:0;font-family:"Segoe UI",Tahoma,Geneva,Verdana,sans-serif;background-color:#f8f9fa}
+      #sidebar{min-height:100vh;width:240px;background-image:url("assets/background.png");background-size:cover;background-position:center;color:white;position:fixed}
+      #sidebar .nav-link{color:white;font-weight:500;padding:10px 20px}
+      #sidebar .nav-link:hover,#sidebar .nav-link.active{background-color:rgba(0,0,0,.2);border-radius:5px}
+      .dashboard-wrapper{margin-left:240px;padding:2rem;background-color:#f1f3f5;min-height:100vh}
+      .avatar{width:60px;height:60px;background:#fff;color:#2e8b57;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin:0 auto 10px}
+      .logout-btn{width:100%;margin-top:auto}
+      textarea{resize:none;width:100%;font-size:.9rem}
+      .remarks-preview{background:#f8f9fa;border:1px dashed #ced4da;border-radius:6px;padding:6px 8px;min-height:36px}
+    </style>
+  </head>
+  <body>
+    <div class="d-flex">
+      <!-- Sidebar -->
+      <div id="sidebar" class="d-flex flex-column p-3">
+        <div class="text-center mb-4">
+          <div class="avatar">🧑‍🔧</div>
+          <strong id="staffName">Loading...</strong><br />
+          <small>Staff</small>
+        </div>
+        <ul class="nav nav-pills flex-column mb-auto">
+          <li><a href="dashboard.html" class="nav-link">Dashboard</a></li>
+          <li><a href="generate-qr.html" class="nav-link">QR Code Generation</a></li>
+          <li><a href="staff-request.html" class="nav-link">Requests</a></li>
+          <li><a href="staff-reports.html" class="nav-link">Reports</a></li>
+          <li><a href="news.html" class="nav-link">News</a></li>
+          <li><a href="trucklogs.html" class="nav-link">Truck Logs</a></li>
+          <li><a href="trucks.html" class="nav-link active">Trucks</a></li>
+          <li><a href="schedule.html" class="nav-link">Scheduling</a></li>
+          <li><a href="dispatch.html" class="nav-link">Dispatching</a></li>
+        </ul>
+        <button class="btn btn-light logout-btn">Log Out</button>
+      </div>
+
+      <!-- Main Content -->
+      <div class="dashboard-wrapper container-fluid">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2 class="mb-0">Truck Inventory</h2>
+          <button id="exportCsvBtn" class="btn btn-success">
+            <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped align-middle">
+            <thead class="table-success">
+              <tr>
+                <th>Plate Number</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th style="width:420px;">Notes / Remarks</th>
+                <th>Change Status</th>
+              </tr>
+            </thead>
+            <tbody id="truckTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="text-muted text-center mt-5 small">
+          EcoBantay Staff Panel © 2025 | Staff Access Enabled
+        </div>
+      </div>
+    </div>
+
+    <!-- View Notes Modal -->
+    <div class="modal fade" id="viewNotesModal" tabindex="-1" aria-labelledby="viewNotesLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title" id="viewNotesLabel">Truck Notes / Remarks</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-2 text-success fw-semibold" id="modalTruckMeta"></div>
+            <pre id="modalNotesContent" style="white-space: pre-wrap; background:#f8f9fa; padding:10px; border-radius:6px;"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      // ========= Config / Helpers =========
+      const BASE_URL = "https://ecobantay-backend.onrender.com"; // keep the working base
+      const token = localStorage.getItem("staffToken");
+      if (!token) { alert("Unauthorized. Redirecting..."); window.location.href = "login.html"; }
+
+      // helpers declared before use
+      function sanitize(v){ return (v??"").toString().replace(/[<>&]/g,c=>({"<":"&lt;","&":"&amp;",">":"&gt;"}[c])); }
+      function safeCell(v){ const s=(v??"").toString().replace(/"/g,'""'); return /[",\n]/.test(s)?`"${s}"`:s; }
+      function getBadgeHTML(status){
+        const map={
+          "Available":{color:"success",icon:"✅"},
+          "Under Maintenance":{color:"warning text-dark",icon:"⚠️"},
+          "Inactive":{color:"secondary",icon:"⛔"}
+        };
+        const {color,icon}=map[status]||{color:"secondary",icon:"❓"};
+        return `<span class="badge bg-${color}">${icon} ${sanitize(status)}</span>`;
+      }
+
+      let trucksData = [];
+
+      // ========= Fetch staff profile =========
+      fetch(`${BASE_URL}/api/staff/profile`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.ok ? res.json() : Promise.reject(res))
+      .then(data => {
+        const fullName = (data.firstName && data.lastName) ? `${data.firstName} ${data.lastName}` : (data.name || "Staff");
+        document.getElementById("staffName").innerText = fullName;
+      })
+      .catch(err => {
+        console.warn("Profile fetch failed:", err?.status || err);
+        document.getElementById("staffName").innerText = "Staff";
+      });
+
+      // ========= Fetch trucks (defensive render) =========
+      fetch(`${BASE_URL}/api/fleet-trucks`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(res => res.ok ? res.json() : Promise.reject(res))
+      .then(trucks => {
+        const tbody = document.getElementById("truckTableBody");
+        if (!Array.isArray(trucks) || trucks.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted">No trucks in database.</td></tr>`;
+          return;
+        }
+        trucksData = trucks;
+        tbody.innerHTML = "";
+
+        trucks.forEach((truck, idx) => {
+          try {
+            const id = truck?._id || `row-${idx}`;
+            const plate = sanitize(truck?.plateNumber ?? "");
+            const name  = sanitize(truck?.name ?? "");
+            const type  = sanitize(truck?.type ?? "");
+            const status = truck?.status ?? "Inactive";
+            const remarksText = (truck?.remarks ?? "").toString();
+            const short = remarksText.length > 80 ? remarksText.slice(0,80) + "..." : remarksText;
+            const preview = short || "No remarks";
+
+            const row = `
+              <tr id="row-${id}">
+                <td>${plate}</td>
+                <td>${name}</td>
+                <td>${type}</td>
+                <td>${getBadgeHTML(status)}</td>
+                <td>
+                  <div class="d-flex flex-column gap-2">
+                    <div class="d-flex align-items-start gap-2">
+                      <div class="remarks-preview flex-grow-1" id="remarks-preview-${id}">${sanitize(preview)}</div>
+                      <button class="btn btn-sm btn-outline-secondary" title="View full notes" onclick="viewNotes('${id}')">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                    </div>
+                    <textarea rows="2" id="remarks-${id}" placeholder="Enter notes...">${sanitize(remarksText)}</textarea>
+                    <div>
+                      <button class="btn btn-sm btn-primary" onclick="saveRemarks('${id}')"><i class="bi bi-save"></i> Save</button>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <select class="form-select form-select-sm" onchange="updateTruckStatus('${id}', this.value)">
+                    <option value="Available" ${status === "Available" ? "selected" : ""}>Available</option>
+                    <option value="Under Maintenance" ${status === "Under Maintenance" ? "selected" : ""}>Under Maintenance</option>
+                    <option value="Inactive" ${status === "Inactive" ? "selected" : ""}>Inactive</option>
+                  </select>
+                </td>
+              </tr>`;
+            tbody.insertAdjacentHTML("beforeend", row);
+          } catch (e) {
+            console.error("Row render error:", e, truck);
+          }
+        });
+      })
+      .catch(err => {
+        console.error("GET /api/fleet-trucks failed:", err?.status || err);
+        document.getElementById("truckTableBody").innerHTML =
+          `<tr><td colspan="6" class="text-center text-danger">Failed to load trucks (see console).</td></tr>`;
+      });
+
+      // ========= View Notes =========
+      function viewNotes(id){
+        const t = (trucksData || []).find(x => (x._id||"") === id);
+        if (!t) return;
+        document.getElementById("modalTruckMeta").innerText = `${t.name || ""} • ${t.plateNumber || ""}`;
+        document.getElementById("modalNotesContent").innerText = (t.remarks || "No notes available.").toString();
+        const modal = new bootstrap.Modal(document.getElementById("viewNotesModal"));
+        modal.show();
+      }
+
+      // ========= Update Status =========
+      function updateTruckStatus(truckId, newStatus){
+        if (!confirm(`Change this truck's status to "${newStatus}"?`)) return;
+        fetch(`${BASE_URL}/api/fleet-trucks/${truckId}/status`, {
+          method:"PUT",
+          headers:{ "Content-Type":"application/json", Authorization:`Bearer ${token}` },
+          body: JSON.stringify({ status:newStatus })
+        })
+        .then(res => res.ok ? res.json() : Promise.reject(res))
+        .then(() => { alert("✅ Truck status updated!"); location.reload(); })
+        .catch(err => alert("❌ Failed to update status: " + (err.status || err)));
+      }
+
+      // ========= Save Remarks (with instant preview) =========
+      function saveRemarks(truckId){
+        const remarks = document.getElementById(`remarks-${truckId}`).value.trim();
+        fetch(`${BASE_URL}/api/fleet-trucks/${truckId}/remarks`,{
+          method:"PUT",
+          headers:{ "Content-Type":"application/json", Authorization:`Bearer ${token}` },
+          body: JSON.stringify({ remarks })
+        })
+        .then(res => res.ok ? res.json() : Promise.reject(res))
+        .then(() => {
+          const short = remarks ? (remarks.length>80 ? remarks.slice(0,80)+"..." : remarks) : "No remarks";
+          const el = document.getElementById(`remarks-preview-${truckId}`);
+          if (el) el.textContent = short; // textContent to avoid HTML edge-cases
+          const idx = (trucksData||[]).findIndex(t => (t._id||"")===truckId);
+          if (idx !== -1) trucksData[idx].remarks = remarks;
+          alert("📝 Remarks saved!");
+        })
+        .catch(err => alert("❌ Failed to save remarks: " + (err.status || err)));
+      }
+
+      // ========= Export CSV =========
+      document.getElementById("exportCsvBtn").addEventListener("click", () => {
+        if (!trucksData.length) return alert("No data to export.");
+        const headers = ["Plate Number","Name","Type","Status","Remarks"];
+        const rows = trucksData.map(t => [
+          safeCell(t.plateNumber),
+          safeCell(t.name),
+          safeCell(t.type),
+          safeCell(t.status),
+          safeCell(t.remarks || "")
+        ]);
+        const csv = "sep=,\n" + headers.join(",") + "\n" + rows.map(r=>r.join(",")).join("\n");
+        const blob = new Blob(["\uFEFF"+csv], { type:"text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `truck-inventory-${new Date().toISOString().slice(0,10)}.csv`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+
+      // ========= Logout =========
+      document.querySelector(".logout-btn").addEventListener("click", () => {
+        localStorage.removeItem("staffToken");
+        window.location.href = "index.html";
+      });
+    </script>
+  </body>
+</html>

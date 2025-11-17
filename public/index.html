@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoBantay - Promotional Website</title>
+    <link rel="apple-touch-icon" href="/assets/ecobantay-icon.png" />
+<link rel="icon" sizes="192x192" href="/assets/ecobantay-icon.png" />
+<link rel="manifest" href="/manifest.json">
+
+
+    <!-- Bootstrap / Icons / AOS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+    <!-- Modern Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="preload"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap"
+      as="style"
+    />
+
+    <style>
+      :root {
+        --primary-green: #2e7d32;
+        --light-green: #4caf50;
+        --dark-green: #1b5e20;
+        --accent-green: #81c784;
+        --nature-gradient: linear-gradient(135deg, #43a047 0%, #1b5e20 100%);
+      }
+
+      /* Typography */
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+          "Segoe UI Emoji";
+        color: #1d1f21;
+        overflow-x: hidden;
+        letter-spacing: 0.2px;
+        line-height: 1.6;
+        background: #fff;
+      }
+      h1,
+      h2,
+      h3,
+      .navbar-brand {
+        font-family: "Poppins", "Inter", sans-serif;
+        letter-spacing: 0.3px;
+      }
+
+      /* Accessibility */
+      :focus-visible {
+        outline: 3px solid var(--accent-green);
+        outline-offset: 2px;
+      }
+
+      /* Leaf Pattern */
+      .leaf-pattern {
+        position: absolute;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg width='50' height='50' viewBox='0 0 50 50' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M25 0C11.2 0 0 11.2 0 25s11.2 25 25 25 25-11.2 25-25S38.8 0 25 0zm0 45c-11 0-20-9-20-20s9-20 20-20 20 9 20 20-9 20-20 20z' fill='%2381C784' fill-opacity='0.08'/%3E%3C/svg%3E");
+        pointer-events: none;
+      }
+
+      /* Navbar */
+      .navbar {
+        background-color: transparent;
+        padding: 1rem 2rem;
+        transition: background-color 0.3s ease, box-shadow 0.3s ease,
+          backdrop-filter 0.3s ease;
+      }
+      .navbar.scrolled {
+        background: rgba(30, 80, 40, 0.8);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+      }
+      .navbar-brand {
+        color: #fff !important;
+        font-weight: 700;
+        font-size: 1.5rem;
+        position: relative;
+      }
+      .nav-link {
+        color: #fff !important;
+        margin: 0 1rem;
+        font-weight: 500;
+        opacity: 0.95;
+      }
+      .nav-link:hover {
+        color: var(--accent-green) !important;
+        opacity: 1;
+      }
+      .navbar .navbar-toggler {
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+      .navbar .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255,255,255,0.85)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+      }
+
+      /* Hero */
+      .hero-section {
+        position: relative;
+        background: linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.55)),
+          url("assets/top-banner-1.jpg") center/cover no-repeat;
+        color: #fff;
+        padding: 8rem 0 7rem;
+        text-align: center;
+      }
+      .login-buttons .btn {
+        margin: 0.5rem;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+      }
+      .hero-blob {
+        position: absolute;
+        inset: auto auto -80px -80px;
+        width: 480px;
+        height: 480px;
+        filter: blur(60px);
+        opacity: 0.35;
+        z-index: 0;
+        background: radial-gradient(circle at 30% 30%, #81c784, transparent 50%),
+          radial-gradient(circle at 70% 60%, #43a047, transparent 55%);
+        pointer-events: none;
+      }
+
+      /* Sections */
+      .about-section {
+        padding: 5rem 0;
+        background: #fff;
+      }
+      .features-section {
+        padding: 5rem 0;
+        background: #f7f9fb;
+      }
+      .target-area {
+        background-color: var(--accent-green);
+        color: #fff;
+        padding: 3rem 0;
+      }
+      .app-download {
+        background: var(--nature-gradient);
+      }
+      footer {
+        background-color: var(--dark-green);
+        color: #fff;
+        padding: 3rem 0;
+      }
+
+      /* Section wave dividers */
+      .section-wave {
+        display: block;
+        line-height: 0;
+        transform: translateY(1px);
+      }
+      .section-wave svg {
+        display: block;
+        width: 100%;
+        height: 60px;
+      }
+      .wave-to-white path {
+        fill: #ffffff;
+      }
+      .wave-to-gray path {
+        fill: #f7f9fb;
+      }
+
+      /* Feature cards */
+      .feature-card {
+        text-align: left;
+        padding: 1.5rem;
+        border-radius: 18px;
+        transition: all 0.35s ease;
+        height: 100%;
+        background: #fff;
+        border: 1px solid rgba(46, 125, 50, 0.1);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+      }
+      .feature-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 16px 34px rgba(46, 125, 50, 0.18);
+        border-color: var(--accent-green);
+      }
+      .feature-icon {
+        width: 44px;
+        height: 44px;
+        display: inline-grid;
+        place-items: center;
+        border-radius: 12px;
+        background: rgba(76, 175, 80, 0.12);
+        color: var(--primary-green);
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+      }
+      .feature-card h3 {
+        font-size: 1.05rem;
+        margin: 0.25rem 0 0.5rem;
+      }
+      .feature-card p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: #3a3f45;
+      }
+
+      /* Buttons */
+      .eco-button {
+        background: var(--primary-green);
+        color: #fff;
+        border: none;
+        transition: background-color 0.25s ease, transform 0.05s ease,
+          box-shadow 0.2s ease;
+      }
+      .eco-button:hover {
+        background: var(--dark-green);
+        color: #fff;
+        box-shadow: 0 8px 20px rgba(27, 94, 32, 0.25);
+      }
+      .eco-button:active {
+        transform: translateY(1px) scale(0.995);
+      }
+
+      /* APK card */
+      .apk-card {
+        background: #fff;
+        border-radius: 18px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+      }
+      .apk-meta {
+        font-size: 0.9rem;
+        color: #495057;
+      }
+
+      /* Reveal animations (IO-based) */
+      .reveal {
+        opacity: 0;
+        transform: translateY(18px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+      .reveal.in {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .reveal-stagger > * {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      .reveal-stagger.in > * {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+      }
+
+      /* Scroll progress bar */
+      #scrollbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 3px;
+        width: 0;
+        z-index: 9999;
+        background: linear-gradient(90deg, #81c784, #43a047);
+        box-shadow: 0 0 8px rgba(67, 160, 71, 0.5);
+      }
+
+      /* Respect reduced motion */
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+
+      .install-guide {
+        border-left: 6px solid var(--accent-green);
+      }
+
+      .install-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: rgba(76, 175, 80, 0.15);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.5rem;
+        color: var(--primary-green);
+      }
+
+      .install-toggle-button {
+  background: linear-gradient(135deg, #66bb6a, #2e7d32);
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 50px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 18px rgba(46, 125, 50, 0.35);
+}
+
+.install-toggle-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(46, 125, 50, 0.45);
+}
+
+.install-toggle-button:active {
+  transform: scale(0.98);
+}
+
+.install-toggle-button i {
+  font-size: 1.1rem;
+}
+
+.download-apk-button {
+  background: linear-gradient(135deg, #43a047, #1b5e20);
+  color: #fff;
+  padding: 14px 32px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 8px 22px rgba(27, 94, 32, 0.45);
+  border: 0;
+}
+
+.download-apk-button i {
+  font-size: 1.2rem;
+}
+
+.download-apk-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(27, 94, 32, 0.5);
+  background: linear-gradient(135deg, #4caf50, #2e7d32);
+}
+
+.download-apk-button:active {
+  transform: scale(0.98);
+}
+
+.download-apk-button:focus-visible {
+  outline: 3px solid #81c784;
+  outline-offset: 3px;
+}
+
+
+    </style>
+  </head>
+  <body>
+    <!-- Scroll progress bar -->
+    <div id="scrollbar" aria-hidden="true"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+      <div class="container">
+        <a class="navbar-brand" href="#home">EcoBantay</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="#home">Home</a></li>
+            <li class="nav-item">
+              <a class="nav-link" href="#about">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#features">Features</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#download">Download</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#contact">Contact</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero-section" id="home">
+      <div class="container position-relative">
+        <div class="hero-blob"></div>
+        <h1 class="display-4 fw-bold mb-3" data-aos="fade-up">
+          Welcome to EcoBantay
+        </h1>
+        <p class="lead mb-5" data-aos="fade-up" data-aos-delay="80">
+          Your partner in sustainable waste management and community
+          participation.
+        </p>
+        <div class="login-buttons" data-aos="fade-up" data-aos-delay="140">
+          <a
+            href="admin-panel/login.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn eco-button btn-lg"
+          >
+            Admin Login
+          </a>
+
+          <a
+            href="staff-panel/index.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn btn-outline-light btn-lg"
+          >
+            Staff Login
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- wave to white -->
+    <div class="section-wave wave-to-white" aria-hidden="true">
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M0,0 C300,80 900,-40 1200,20 L1200,120 L0,120 Z"></path>
+      </svg>
+    </div>
+
+    <!-- About -->
+    <section class="about-section" id="about">
+      <div class="container">
+        <h2 class="text-center mb-5 reveal">About EcoBantay</h2>
+        <div class="row align-items-center reveal-stagger">
+          <div class="col-lg-6 mb-4 mb-lg-0">
+            <div class="position-relative">
+              <img
+                src="assets/waste-management.jpg"
+                loading="lazy"
+                alt="Waste management community initiative"
+                class="img-fluid rounded shadow"
+              />
+              <div class="leaf-pattern" aria-hidden="true"></div>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <h3 class="mb-3">Our Mission</h3>
+            <p class="lead">
+              EcoBantay empowers Barangay Marulas with technology-driven waste
+              management and strong community engagement.
+            </p>
+            <p>
+              We build a cleaner, greener, more sustainable barangay by enabling
+              efficient collection, proper segregation, transparent operations,
+              and rewarding resident participation.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Target Area -->
+    <section class="target-area">
+      <div class="container text-center">
+        <h2 class="mb-2">Serving Barangay Marulas</h2>
+        <p class="lead mb-0">
+          Focused services tailored for residents, staff, and administrators of
+          Barangay Marulas, Valenzuela City.
+        </p>
+      </div>
+    </section>
+
+    <!-- Stats row (trust indicators) -->
+    <section class="py-5 reveal">
+      <div class="container">
+        <div class="row text-center g-4">
+          <div class="col-6 col-md-3">
+            <h3 class="mb-0 fw-bold">1,100+</h3>
+            <small class="text-muted">Reports Resolved</small>
+          </div>
+          <div class="col-6 col-md-3">
+            <h3 class="mb-0 fw-bold">65</h3>
+            <small class="text-muted">Active Trucks</small>
+          </div>
+          <div class="col-6 col-md-3">
+            <h3 class="mb-0 fw-bold">2,500+</h3>
+            <small class="text-muted">Clean Points Earned</small>
+          </div>
+          <div class="col-6 col-md-3">
+            <h3 class="mb-0 fw-bold">4.8/5</h3>
+            <small class="text-muted">Resident Rating</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- wave to gray (next section bg is #f7f9fb) -->
+    <div class="section-wave wave-to-gray" aria-hidden="true">
+      <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M0,0 C300,80 900,-40 1200,20 L1200,120 L0,120 Z"></path>
+      </svg>
+    </div>
+
+    <!-- Features (brief but complete) -->
+    <section class="features-section" id="features">
+      <div class="container">
+        <h2 class="text-center mb-5 reveal">Features</h2>
+
+        <!-- Resident App -->
+        <div class="row g-4 mb-4 reveal-stagger">
+          <div class="col-md-4">
+            <div class="feature-card shadow-sm">
+              <div class="feature-icon">
+                <i class="fas fa-qrcode" aria-hidden="true"></i>
+              </div>
+              <h3>QR Missions &amp; Clean Points</h3>
+              <p>
+                Scan mission QR codes to earn Clean Points with validation,
+                expiry checks, and anti-spam rules.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="feature-card shadow-sm">
+              <div class="feature-icon">
+                <i class="fas fa-trophy" aria-hidden="true"></i>
+              </div>
+              <h3>Leaderboards</h3>
+              <p>
+                Real-time rankings for community participation; motivate
+                residents and recognize top contributors.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="feature-card shadow-sm">
+              <div class="feature-icon">
+                <i class="fas fa-bullhorn" aria-hidden="true"></i>
+              </div>
+              <h3>News &amp; Guides</h3>
+              <p>
+                Barangay updates, disposal guides, and educational posts
+                accessible inside the app.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4 mb-4 reveal-stagger">
+          <div class="col-md-4">
+            <div class="feature-card shadow-sm">
+              <div class="feature-icon">
+                <i class="fas fa-file-signature" aria-hidden="true"></i>
+              </div>
+              <h3>Waste Reports</h3>
+              <p>
+                Report issues with photos and geotagging for faster response and
+                tracking.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="feature-card shadow-sm">
+              <div class="feature-icon">
+                <i class="fas fa-truck" aria-hidden="true"></i>
+              </div>
+              <h3>Pickup Requests</h3>
+              <p>
+                Request pickups, confirm details, and track status with ETA
+                previews.
+              </p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="feature-card shadow-sm">
+              <div class="feature-icon">
+                <i class="fas fa-map-location-dot" aria-hidden="true"></i>
+              </div>
+              <h3>Truck Tracker</h3>
+              <p>
+                Live map with route polylines and speed; roads-aligned paths for
+                transparent operations.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- System -->
+        <div class="row g-4 mt-1 reveal-stagger">
+          <div class="col-md-4">
+            <div class="feature-card shadow-sm">
+              <div class="feature-icon">
+                <i class="fas fa-lock" aria-hidden="true"></i>
+              </div>
+              <h3>Privacy &amp; Safety</h3>
+              <p>
+                Time-limited QR, data protection, and transparent records to
+                build community trust.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Download APK -->
+    <section class="app-download py-5" id="download">
+      <div class="container">
+        <div class="row align-items-center g-4">
+          <div class="col-lg-6" data-aos="fade-right">
+            <h2 class="text-white mb-3">Download EcoBantay (APK)</h2>
+            <p class="text-white-50 mb-4">
+              Install the latest Android build directly. Join the EcoBantay
+              community and start earning Clean Points today.
+            </p>
+
+            <div class="d-flex gap-2 mb-3 reveal">
+              <span class="badge bg-light text-dark border"
+                >Updated: Nov 15, 2025</span
+              >
+              
+            </div>
+
+            <div class="apk-card mb-3" aria-label="APK information">
+              <div class="display-6" aria-hidden="true">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+              </div>
+              <div>
+                <div class="fw-semibold">EcoBantay – Android APK</div>
+                <div class="apk-meta">
+                  Version: <span id="apkVersion">v1.0.0</span> · Size: ~<span
+                    id="apkSize"
+                    >104 MB</span
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Premium Download Button -->
+<a 
+  href="downloads/EcoBantay.apk"
+  download
+  class="download-apk-button"
+>
+  <i class="fa-solid fa-download me-2"></i>
+  Download EcoBantay APK
+</a>
+
+            <p class="text-white-50 mt-3 mb-0" style="font-size: 0.925rem">
+              Having trouble? Enable “Install unknown apps” for your browser,
+              then try again.
+            </p>
+
+            <!-- Stylish Install Button -->
+            <button
+              class="install-toggle-button"
+              data-bs-toggle="collapse"
+              data-bs-target="#installSteps"
+            >
+              <i class="fa-solid fa-circle-info me-2"></i>
+              How to install the EcoBantay App?
+            </button>
+
+            
+
+            <div class="collapse" id="installSteps">
+              <!-- VISUAL INSTALL GUIDE -->
+              <div
+                class="mt-4 p-4 rounded shadow bg-white install-guide"
+                data-aos="fade-up"
+              >
+                <h4 class="fw-bold mb-3">
+                  <i class="fa-solid fa-circle-info me-2"></i>Installation Guide
+                  (Step-by-Step)
+                </h4>
+
+                <div class="row g-4">
+                  <!-- Step 1 -->
+                  <div class="col-md-6 d-flex align-items-start">
+                    <div class="install-icon me-3">
+                      <i class="fa-solid fa-download"></i>
+                    </div>
+                    <div>
+                      <h5 class="fw-semibold mb-1">1. Download the APK</h5>
+                      <p class="mb-0 small text-muted">
+                        Tap the <strong>Download APK</strong> button above. Wait
+                        for the file to finish downloading.
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Step 2 -->
+                  <div class="col-md-6 d-flex align-items-start">
+                    <div class="install-icon me-3">
+                      <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                      <h5 class="fw-semibold mb-1">
+                        2. Allow “Install Unknown Apps”
+                      </h5>
+                      <p class="mb-0 small text-muted">
+                        Go to
+                        <strong
+                          >Settings → Security → Install Unknown Apps</strong
+                        >
+                        and allow your browser (Chrome/Brave).
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Step 3 -->
+                  <div class="col-md-6 d-flex align-items-start">
+                    <div class="install-icon me-3">
+                      <i class="fa-solid fa-folder-open"></i>
+                    </div>
+                    <div>
+                      <h5 class="fw-semibold mb-1">
+                        3. Open the Downloaded File
+                      </h5>
+                      <p class="mb-0 small text-muted">
+                        Go to your <strong>Downloads</strong> folder and tap the
+                        <strong>EcoBantay.apk</strong> file.
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Step 4 -->
+                  <div class="col-md-6 d-flex align-items-start">
+                    <div class="install-icon me-3">
+                      <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                    <div>
+                      <h5 class="fw-semibold mb-1">4. Tap “Install”</h5>
+                      <p class="mb-0 small text-muted">
+                        If prompted, tap <strong>Install</strong>. After
+                        installation, open EcoBantay and start using the app.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6" data-aos="fade-left">
+            <div class="text-center">
+              <img
+                src="assets/ecobantay-icon.png"
+                alt="EcoBantay mobile app preview"
+                class="img-fluid"
+                style="
+                  max-width: 320px;
+                  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
+                "
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="py-5">
+      <div class="container">
+        <h2 class="text-center mb-5" data-aos="fade-up">Contact Us</h2>
+        <div class="row justify-content-center">
+          <div class="col-md-8 text-center">
+            <p class="lead">Questions or partnership ideas? Let’s talk.</p>
+            <div class="mt-3">
+              <i class="fas fa-envelope me-2" aria-hidden="true"></i>
+              <span aria-label="Email">contact@ecobantay.com</span><br />
+              <i class="fas fa-phone me-2" aria-hidden="true"></i>
+              <span aria-label="Phone">(123) 456-7890</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+      <div class="container text-center">
+        <p class="mb-0">&copy; 2025 EcoBantay. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+      AOS.init({ duration: 800, offset: 100, once: true });
+
+      // Navbar scroll effect
+      window.addEventListener(
+        "scroll",
+        () => {
+          const navbar = document.querySelector(".navbar");
+          window.scrollY > 50
+            ? navbar.classList.add("scrolled")
+            : navbar.classList.remove("scrolled");
+        },
+        { passive: true }
+      );
+
+      // IntersectionObserver for reveal and stagger
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const el = entry.target;
+              el.classList.add("in");
+              if (el.classList.contains("reveal-stagger")) {
+                [...el.children].forEach((child, i) => {
+                  child.style.transitionDelay = i * 90 + "ms";
+                });
+              }
+              io.unobserve(el);
+            }
+          });
+        },
+        { threshold: 0.12 }
+      );
+
+      document
+        .querySelectorAll(".reveal, .reveal-stagger")
+        .forEach((el) => io.observe(el));
+
+      // Parallax hero (gentle)
+      const hero = document.querySelector(".hero-section");
+      window.addEventListener(
+        "scroll",
+        () => {
+          const y = window.scrollY * 0.25;
+          hero.style.backgroundPosition = `center calc(50% + ${y}px)`;
+        },
+        { passive: true }
+      );
+
+      // Scroll progress bar
+      const bar = document.getElementById("scrollbar");
+      const updateBar = () => {
+        const h = document.documentElement;
+        const p = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+        bar.style.width = p + "%";
+      };
+      addEventListener("scroll", updateBar, { passive: true });
+      addEventListener("load", updateBar);
+
+      // (Optional) Fill APK meta if you have them dynamically
+      // document.getElementById('apkVersion').textContent = 'v1.1.3';
+      // document.getElementById('apkSize').textContent = '28 MB';
+    </script>
+  </body>
+</html>

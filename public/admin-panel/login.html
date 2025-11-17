@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EcoBantay Admin Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="icon" type="image/png" sizes="64x64" href="assets/ecobantay-icon.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-green: #2E7D32;
+      --light-green: #4CAF50;
+      --pale-green: #E8F5E9;
+      --deep-green: #1B5E20;
+    }
+    
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, var(--pale-green), #FFFFFF);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    
+    .login-box {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 2.5rem;
+      border-radius: 15px;
+      box-shadow: 0 8px 32px rgba(46, 125, 50, 0.1);
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary-green), var(--light-green));
+    }
+
+    .login-box h3 {
+      color: var(--primary-green);
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+
+    .login-box h3::after {
+      content: '🌱';
+      font-size: 1.2rem;
+      margin-left: 8px;
+    }
+
+    .form-label {
+      color: var(--deep-green);
+      font-weight: 500;
+    }
+
+    .form-control {
+      border: 2px solid #E0E0E0;
+      padding: 0.75rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--light-green);
+      box-shadow: 0 0 0 0.2rem rgba(76, 175, 80, 0.25);
+    }
+
+    .btn-success {
+      background-color: var(--primary-green);
+      border: none;
+      padding: 0.75rem;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+      background-color: var(--deep-green);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(27, 94, 32, 0.2);
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--primary-green);
+      z-index: 10;
+    }
+
+    .icon-input {
+      padding-left: 2.5rem;
+    }
+
+    #errorAlert {
+      border-radius: 8px;
+      border-left: 4px solid #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h3 class="text-center">EcoBantay Admin</h3>
+    <div id="errorAlert" class="alert alert-danger d-none" role="alert"></div>
+    <form id="loginForm">
+      <div class="mb-4">
+        <label for="email" class="form-label">Email address</label>
+        <div class="input-group">
+          <i class="fas fa-envelope input-icon"></i>
+          <input type="email" class="form-control icon-input" id="email" required placeholder="Enter your email">
+        </div>
+      </div>
+      <div class="mb-4">
+        <label for="password" class="form-label">Password</label>
+        <div class="input-group">
+          <i class="fas fa-lock input-icon"></i>
+          <input type="password" class="form-control icon-input" id="password" required placeholder="Enter your password">
+        </div>
+      </div>
+      <button type="submit" class="btn btn-success w-100 mb-3">
+        <i class="fas fa-sign-in-alt me-2"></i>Login
+      </button>
+      <div class="text-center text-muted">
+        <small>Secure Admin Access for EcoBantay Waste Management</small>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const errorAlert = document.getElementById("errorAlert");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      try {
+        const res = await fetch("https://ecobantay-backend.onrender.com/api/admin/login", {  
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          localStorage.setItem("adminToken", data.token);
+          window.location.href = "index.html"; // redirect to dashboard
+        } else {
+          errorAlert.classList.remove("d-none");
+          errorAlert.innerText = data.message || "Login failed. Check your credentials.";
+        }
+      } catch (err) {
+        errorAlert.classList.remove("d-none");
+        errorAlert.innerText = "Server error. Please try again later.";
+      }
+    });
+  </script>
+</body>
+</html>
+

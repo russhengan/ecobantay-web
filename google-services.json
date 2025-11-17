@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "933727855279",
+    "project_id": "ecobantay-e46f4",
+    "storage_bucket": "ecobantay-e46f4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:933727855279:android:d97551d50c7f0cb05dea5a",
+        "android_client_info": {
+          "package_name": "com.ecobantay.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCuEjyAgjClgjw3eCyVW6uutrU14JfzXq4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

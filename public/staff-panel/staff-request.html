@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/ecobantay-icon.png">
+    <title>EcoBantay Staff - Pickup Requests</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      #sidebar {
+        min-height: 100vh;
+        width: 240px;
+        background-image: url("assets/background.png");
+        background-size: cover;
+        background-position: center;
+        color: white;
+        position: fixed;
+      }
+      #sidebar .nav-link {
+        color: white;
+        font-weight: 500;
+        padding: 10px 20px;
+      }
+      #sidebar .nav-link:hover,
+      #sidebar .nav-link.active {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+      }
+      .dashboard-wrapper {
+        margin-left: 240px;
+        padding: 2rem;
+      }
+      .avatar {
+        width: 60px;
+        height: 60px;
+        background-color: white;
+        color: #2e8b57;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin: 0 auto 10px;
+      }
+      .logout-btn {
+        width: 100%;
+        margin-top: auto;
+      }
+      table {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      thead {
+        background-color: #53b052;
+        color: white;
+      }
+      .modal-img {
+        width: 100%;
+        max-height: 200px;
+        object-fit: cover;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="d-flex">
+      <div id="sidebar" class="d-flex flex-column p-3">
+        <div class="text-center mb-4">
+          <div class="avatar">🧑‍🔧</div>
+          <strong id="staffName">Loading...</strong><br />
+          <small>Staff</small>
+        </div>
+        <ul class="nav nav-pills flex-column mb-auto">
+          <li class="nav-item">
+            <a href="dashboard.html" class="nav-link active">Dashboard</a>
+          </li>
+          <li>
+            <a href="generate-qr.html" class="nav-link">QR Code Generation</a>
+          </li>
+          <li><a href="staff-request.html" class="nav-link">Request</a></li>
+          <li><a href="staff-reports.html" class="nav-link">Report</a></li>
+          <li><a href="news.html" class="nav-link">News</a></li>
+          <li><a href="trucklogs.html" class="nav-link ">Truck Logs</a></li>
+          <li><a href="trucks.html" class="nav-link">Trucks</a></li>
+          <li><a href="schedule.html" class="nav-link">Scheduling</a></li>
+          <li><a href="dispatch.html" class="nav-link">Dispatching</a></li>
+
+        </ul>
+        <button class="btn btn-light logout-btn">Log Out</button>
+      </div>
+
+      <div class="dashboard-wrapper container-fluid">
+        <h3 class="mb-4">Pickup Requests</h3>
+        <div class="mb-3">
+          <button onclick="loadPickups(false)" class="btn btn-success me-2">
+            Active Pickups
+          </button>
+          <button onclick="loadPickups(true)" class="btn btn-secondary">
+            Archived Pickups
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle">
+            <thead class="table-success">
+              <tr>
+                <th>Request ID</th>
+                <th>Waste Type</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="pickupTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- MODAL -->
+    <div class="modal fade" id="pickupModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Pickup Details</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p><strong>Type:</strong> <span id="modalType"></span></p>
+            <p><strong>Location:</strong> <span id="modalLocation"></span></p>
+            <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+            <p>
+              <strong>Assigned Driver:</strong>
+              <span id="modalDriver">Unassigned</span>
+            </p>
+
+            <div class="mb-3">
+              <label for="driverSelect" class="form-label"
+                >Assign Driver:</label
+              >
+              <select class="form-select" id="driverSelect">
+                <option value="Unassigned">-- Select Driver --</option>
+              </select>
+            </div>
+
+            <div id="modalImages" class="row mb-3"></div>
+
+            <div class="d-flex justify-content-between flex-wrap gap-2">
+              <div class="d-flex gap-2">
+                <button
+                  class="btn btn-success"
+                  onclick="updateStatus('Approved')"
+                >
+                  Approve
+                </button>
+                <button
+                  class="btn btn-warning"
+                  onclick="updateStatus('In Progress')"
+                >
+                  In Progress
+                </button>
+                <button class="btn btn-danger" onclick="updateStatus('Denied')">
+                  Deny
+                </button>
+              </div>
+              <div class="d-flex gap-2 ms-auto">
+                <button class="btn btn-info" onclick="assignDriver()">
+                  Assign
+                </button>
+                <button class="btn btn-outline-danger" onclick="deletePickup()">
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const token = localStorage.getItem("staffToken");
+      if (!token) {
+        alert("Unauthorized. Redirecting to login...");
+        window.location.href = "login.html";
+      }
+
+      let selectedPickupId = null;
+
+      function loadPickups(isArchived = false) {
+        const endpoint = isArchived
+          ? "https://ecobantay-backend.onrender.com/api/pickups/archived"
+          : "https://ecobantay-backend.onrender.com/api/pickups";
+
+        fetch(endpoint)
+          .then((res) => res.json())
+          .then((data) => {
+            const table = document.getElementById("pickupTable");
+            table.innerHTML = "";
+            data.forEach((pickup) => {
+              const status = pickup.status || "Pending";
+              const row = document.createElement("tr");
+              row.innerHTML = `
+              <td>${pickup._id}</td>
+              <td>${pickup.type}</td>
+              <td><span class="badge ${
+                status === "Approved"
+                  ? "bg-success"
+                  : status === "In Progress"
+                  ? "bg-warning"
+                  : status === "Denied"
+                  ? "bg-danger"
+                  : "bg-secondary"
+              }">${status}</span></td>
+              <td>${new Date(pickup.createdAt).toLocaleString()}</td>
+              <td><button class="btn btn-sm btn-primary" onclick='viewPickup(${JSON.stringify(
+                pickup
+              )})'>View</button></td>
+            `;
+              table.appendChild(row);
+            });
+          })
+          .catch((err) => console.error("❌ Error fetching pickups:", err));
+      }
+
+      function viewPickup(pickup) {
+        selectedPickupId = pickup._id;
+        document.getElementById("modalType").innerText = pickup.type;
+        document.getElementById("modalLocation").innerText = pickup.location;
+        document.getElementById("modalStatus").innerText =
+          pickup.status || "Pending";
+        document.getElementById("modalDriver").innerText =
+          pickup.assignedDriver || "Unassigned";
+        document.getElementById("driverSelect").value =
+          pickup.assignedDriver || "Unassigned";
+
+        const imageContainer = document.getElementById("modalImages");
+        imageContainer.innerHTML = "";
+        pickup.images.forEach((img) => {
+          const col = document.createElement("div");
+          col.className = "col-md-6";
+          col.innerHTML = `<img src="${img}" class="modal-img" />`;
+          imageContainer.appendChild(col);
+        });
+
+        loadDrivers(); // ✅ Add this line here**
+        new bootstrap.Modal(document.getElementById("pickupModal")).show();
+      }
+
+      document.querySelector(".logout-btn").addEventListener("click", () => {
+        localStorage.removeItem("staffToken");
+        window.location.href = "index.html";
+      });
+
+      // ✅ Fetch Staff Name
+      fetch("https://ecobantay-backend.onrender.com/api/staff/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Unauthorized");
+          return res.json();
+        })
+        .then((data) => {
+          document.getElementById("staffName").innerText =
+            data.name || `${data.firstName} ${data.lastName}` || "Staff";
+        })
+        .catch((err) => {
+          console.error("❌ Failed to load staff name:", err);
+          document.getElementById("staffName").innerText = "Staff";
+        });
+
+      loadPickups();
+
+      function updateStatus(status) {
+        if (!selectedPickupId) return;
+
+        fetch(
+          `https://ecobantay-backend.onrender.com/api/pickups/${selectedPickupId}/status`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status }),
+          }
+        )
+          .then((res) => {
+            if (!res.ok) throw new Error("Failed to update");
+            return res.json();
+          })
+          .then(() => {
+            loadPickups();
+            bootstrap.Modal.getInstance(
+              document.getElementById("pickupModal")
+            ).hide();
+          })
+          .catch((err) => console.error("❌ Status update error:", err));
+      }
+
+      function assignDriver() {
+        const selectedDriver = document.getElementById("driverSelect").value;
+        if (!selectedPickupId || selectedDriver === "Unassigned") return;
+
+        fetch(
+          `https://ecobantay-backend.onrender.com/api/pickups/${selectedPickupId}/assign`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ driver: selectedDriver }),
+          }
+        )
+          .then((res) => res.json())
+          .then(() => {
+            alert("✅ Driver assigned successfully");
+            loadPickups();
+          })
+          .catch((err) => console.error("❌ Assign driver error:", err));
+      }
+
+      function deletePickup() {
+        if (!selectedPickupId) return;
+        const confirmDelete = confirm(
+          "Are you sure you want to delete this pickup request?"
+        );
+        if (!confirmDelete) return;
+
+        fetch(`https://ecobantay-backend.onrender.com/api/pickups/${selectedPickupId}`, {
+          method: "DELETE",
+        })
+          .then((res) => res.json())
+          .then(() => {
+            alert("🗑️ Pickup deleted");
+            loadPickups();
+            bootstrap.Modal.getInstance(
+              document.getElementById("pickupModal")
+            ).hide();
+          })
+          .catch((err) => console.error("❌ Delete error:", err));
+      }
+
+      function loadDrivers() {
+        fetch("https://ecobantay-backend.onrender.com/api/drivers") // from users with role 'driver'
+          .then((res) => res.json())
+          .then((data) => {
+            const select = document.getElementById("driverSelect");
+            select.innerHTML = `<option value="Unassigned">-- Select Driver --</option>`;
+            data.forEach((driver) => {
+              const displayName =
+                driver.name ||
+                driver.fullName ||
+                driver.firstName + " " + driver.lastName ||
+                driver.email;
+              const option = document.createElement("option");
+              option.value = displayName;
+              option.text = displayName;
+              select.appendChild(option);
+            });
+          })
+          .catch((err) => console.error("❌ Failed to load drivers:", err));
+      }
+    </script>
+  </body>
+</html>

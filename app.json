@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "EcoBantay",
+    "slug": "EcoBantay",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "ecobantay",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+
+    "android": {
+      "package": "com.ecobantay.app",
+      "icon": "./assets/images/icon.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyB0CaogBFDVRVEzMVYwkxuOtkEf2lNzLRM"
+        }
+      }
+    },
+
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/icon.png"
+    },
+
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ],
+      "expo-barcode-scanner"
+    ],
+
+    "experiments": {
+      "typedRoutes": true
+    },
+
+    "extra": {
+      "router": { "origin": false },
+      "eas": {
+        "projectId": "baa402ce-4ffe-4ca2-8e48-ce3a0654e82b"
+      }
+    },
+
+    "owner": "russhavana"
+  }
+}

@@ -1,0 +1,279 @@
+<!-- staff-reports.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/ecobantay-icon.png">
+    <title>EcoBantay Staff - Reports</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+      }
+      #sidebar {
+        min-height: 100vh;
+        width: 240px;
+        background-image: url("assets/background.png");
+        background-size: cover;
+        color: white;
+        position: fixed;
+      }
+      #sidebar .nav-link {
+        color: white;
+        font-weight: 500;
+        padding: 10px 20px;
+      }
+      #sidebar .nav-link:hover,
+      #sidebar .nav-link.active {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+      }
+      .dashboard-wrapper {
+        margin-left: 240px;
+        padding: 2rem;
+      }
+      .avatar {
+        width: 60px;
+        height: 60px;
+        background-color: white;
+        color: #2e8b57;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin: 0 auto 10px;
+      }
+      .badge-pending {
+        background-color: orange;
+      }
+      .badge-resolved {
+        background-color: green;
+      }
+      .modal-img {
+        width: 100%;
+        max-height: 200px;
+        object-fit: cover;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="d-flex">
+      <div id="sidebar" class="d-flex flex-column p-3">
+        <div class="text-center mb-4">
+          <div class="avatar">🧑‍🔧</div>
+          <strong id="staffName">Loading...</strong><br />
+          <small>Staff</small>
+        </div>
+        <ul class="nav nav-pills flex-column mb-auto">
+          <li class="nav-item">
+            <a href="dashboard.html" class="nav-link active">Dashboard</a>
+          </li>
+          <li>
+            <a href="generate-qr.html" class="nav-link">QR Code Generation</a>
+          </li>
+          <li><a href="staff-request.html" class="nav-link">Request</a></li>
+          <li><a href="staff-reports.html" class="nav-link">Report</a></li>
+          <li><a href="news.html" class="nav-link">News</a></li>
+          <li><a href="trucklogs.html" class="nav-link ">Truck Logs</a></li>
+          <li><a href="trucks.html" class="nav-link">Trucks</a></li>
+          <li><a href="schedule.html" class="nav-link">Scheduling</a></li>
+          <li><a href="dispatch.html" class="nav-link">Dispatching</a></li>
+
+        </ul>
+        <button class="btn btn-light logout-btn">Log Out</button>
+      </div>
+
+      <div class="dashboard-wrapper container-fluid">
+        <h3 class="mb-4">Waste Reports</h3>
+        <div class="mb-3">
+          <button onclick="loadReports(false)" class="btn btn-success me-2">
+            Active Reports
+          </button>
+          <button onclick="loadReports(true)" class="btn btn-secondary">
+            Archived Reports
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle">
+            <thead class="table-success">
+              <tr>
+                <th>Report ID</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="reportTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Report Details</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p><strong>Reporter:</strong> <span id="modalReporter"></span></p>
+            <p><strong>Type:</strong> <span id="modalType"></span></p>
+            <p><strong>Location:</strong> <span id="modalLocation"></span></p>
+            <p>
+              <strong>Description:</strong> <span id="modalDescription"></span>
+            </p>
+            <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+            <div id="modalImages" class="row"></div>
+            <div class="mt-4 d-flex gap-2">
+              <button class="btn btn-success" id="resolveBtn">
+                Mark as Resolved
+              </button>
+              <button class="btn btn-danger" id="deleteBtn">
+                Delete Report
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const token = localStorage.getItem("staffToken");
+      if (!token) {
+        alert("Unauthorized. Redirecting to login...");
+        window.location.href = "login.html";
+      }
+
+      // ✅ Fetch Staff Name
+      fetch("https://ecobantay-backend.onrender.com/api/staff/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Unauthorized");
+          return res.json();
+        })
+        .then((data) => {
+          const fullName =
+            data.firstName && data.lastName
+              ? `${data.firstName} ${data.lastName}`
+              : data.name || "Staff";
+          document.getElementById("staffName").innerText = fullName;
+        })
+        .catch((err) => {
+          console.error("❌ Failed to load staff name:", err);
+          document.getElementById("staffName").innerText = "Staff";
+        });
+
+      function loadReports(isArchived = false) {
+        const endpoint = isArchived
+          ? "https://ecobantay-backend.onrender.com/api/reports/archived"
+          : "https://ecobantay-backend.onrender.com/api/reports";
+        fetch(endpoint)
+          .then((res) => res.json())
+          .then((data) => {
+            const table = document.getElementById("reportTable");
+            table.innerHTML = "";
+            data.forEach((report) => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+            <td>${report._id}</td>
+            <td>${report.type}</td>
+            <td><span class="badge ${
+              report.status === "Resolved" ? "badge-resolved" : "badge-pending"
+            }">${report.status || "Pending"}</span></td>
+            <td>${new Date(report.createdAt).toLocaleString()}</td>
+            <td><button class="btn btn-sm btn-primary" onclick='viewReport(${JSON.stringify(
+              report
+            )})'>View</button></td>
+          `;
+              table.appendChild(row);
+            });
+          });
+      }
+
+      function viewReport(report) {
+        selectedReportId = report._id;
+        document.getElementById("modalReporter").innerText =
+          report.name || "Unknown";
+        document.getElementById("modalType").innerText = report.type;
+        document.getElementById("modalLocation").innerText =
+          report.location || "N/A";
+        document.getElementById("modalDescription").innerText =
+          report.description || "No description";
+        document.getElementById("modalStatus").innerText =
+          report.status || "Pending";
+        const images = document.getElementById("modalImages");
+        images.innerHTML = "";
+        (report.images || []).forEach((img) => {
+          const col = document.createElement("div");
+          col.className = "col-md-6";
+          const url = img.startsWith("uploads")
+            ? `https://ecobantay-backend.onrender.com/${img}`
+            : img;
+          col.innerHTML = `<img src="${url}" class="modal-img" />`;
+          images.appendChild(col);
+        });
+        new bootstrap.Modal(document.getElementById("reportModal")).show();
+      }
+
+      document.getElementById("resolveBtn").addEventListener("click", () => {
+        if (!selectedReportId) return;
+        fetch(
+          `https://ecobantay-backend.onrender.com/api/reports/${selectedReportId}/resolve`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+          }
+        ).then(() => {
+          loadReports();
+          bootstrap.Modal.getInstance(
+            document.getElementById("reportModal")
+          ).hide();
+        });
+      });
+
+      document.querySelector(".logout-btn").addEventListener("click", () => {
+        localStorage.removeItem("staffToken");
+        window.location.href = "index.html";
+      });
+
+      loadReports();
+
+      document.getElementById("deleteBtn").addEventListener("click", () => {
+        if (!selectedReportId) return;
+
+        if (!confirm("Are you sure you want to delete this report?")) return;
+
+        fetch(`https://ecobantay-backend.onrender.com/api/reports/${selectedReportId}`, {
+          method: "DELETE",
+        })
+          .then(() => {
+            loadReports();
+            bootstrap.Modal.getInstance(
+              document.getElementById("reportModal")
+            ).hide();
+          })
+          .catch((err) => {
+            console.error("❌ Delete error:", err);
+            alert("Failed to delete report.");
+          });
+      });
+    </script>
+  </body>
+</html>

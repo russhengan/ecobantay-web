@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - EcoBantay</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Generate QR Code for Truck</h2>
+
+        <div class="form-group">
+            <label for="truckNumber">Truck Number:</label>
+            <input type="text" id="truckNumber" placeholder="Enter Truck Number">
+        </div>
+
+        <div class="form-group">
+            <label for="location">Location:</label>
+            <input type="text" id="location" placeholder="Enter Location">
+        </div>
+
+        <button onclick="generateQRCode()">Generate QR Code</button>
+
+        <div id="qrDisplay" class="qr-container">
+            <!-- QR Code will be displayed here -->
+        </div>
+    </div>
+
+    <script src="../js/qrGenerator.js"></script>
+</body>
+</html>

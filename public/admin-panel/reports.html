@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/ecobantay-icon.png">
+    <title>EcoBantay Admin - Reports</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+      }
+      #sidebar {
+        min-height: 100vh;
+        width: 240px;
+        background-image: url("assets/background.png");
+        background-size: cover;
+        background-position: center;
+        color: white;
+        position: fixed;
+      }
+      #sidebar .nav-link {
+        color: white;
+        font-weight: 500;
+        padding: 10px 20px;
+      }
+      #sidebar .nav-link:hover,
+      #sidebar .nav-link.active {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+      }
+      .dashboard-wrapper {
+        margin-left: 240px;
+        padding: 2rem;
+      }
+      .avatar {
+        width: 60px;
+        height: 60px;
+        background-color: white;
+        color: #2e8b57;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin: 0 auto 10px;
+      }
+      .logout-btn {
+        width: 100%;
+        margin-top: auto;
+      }
+      table {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      thead {
+        background-color: #53b052;
+        color: white;
+      }
+      .badge-pending {
+        background-color: orange;
+      }
+      .badge-resolved {
+        background-color: green;
+      }
+      .modal-img {
+        width: 100%;
+        max-height: 200px;
+        object-fit: cover;
+        margin-bottom: 10px;
+      }
+
+      .section-title {
+        background: #c8f7c5;
+        padding: 12px 18px;
+        border-left: 6px solid #53b052;
+        border-radius: 8px;
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="d-flex">
+      <div id="sidebar" class="d-flex flex-column p-3">
+        <div class="text-center mb-4">
+          <div class="avatar">👤</div>
+          <strong id="adminName">Loading...</strong><br />
+          <small>Admin</small>
+        </div>
+        <ul class="nav nav-pills flex-column mb-auto">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link">Dashboard</a>
+          </li>
+          <li><a href="users.html" class="nav-link">Users</a></li>
+          <li><a href="employees.html" class="nav-link">Employees</a></li>
+          <li><a href="request.html" class="nav-link">Requests</a></li>
+          <li><a href="reports.html" class="nav-link active">Reports</a></li>
+          <li><a href="news.html" class="nav-link">News</a></li>
+          <li>
+            <a href="trucklogs.html" class="nav-link">Truck Logs</a>
+          </li>
+          <li><a href="trucks.html" class="nav-link">Trucks</a></li>
+          <li><a href="schedule.html" class="nav-link">Scheduling</a></li>
+          <li><a href="dispatch.html" class="nav-link">Dispatch</a></li>
+          <li><a href="generate-qr.html" class="nav-link">QR Code Generation</a></li>
+
+        </ul>
+        <button class="btn btn-light logout-btn">Log Out</button>
+      </div>
+
+      <div class="dashboard-wrapper container-fluid">
+      <div class="section-title">Waste Reports</div>
+        <div class="mb-3 d-flex justify-content-between">
+          <div>
+            <button onclick="loadReports(false)" class="btn btn-success me-2">
+              Active Reports
+            </button>
+            <button onclick="loadReports(true)" class="btn btn-secondary">
+              Archived Reports
+            </button>
+          </div>
+
+          <!-- Export Button -->
+          <button onclick="exportExcel()" class="btn btn-outline-success">
+            📊 Export Excel
+          </button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-bordered align-middle">
+            <thead class="table-success">
+              <tr>
+                <th>Report ID</th>
+                <th>Report Title</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="reportTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="reportModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Report Details</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <p><strong>Reporter:</strong> <span id="modalReporter"></span></p>
+            <p><strong>Type:</strong> <span id="modalType"></span></p>
+            <p><strong>Location:</strong> <span id="modalLocation"></span></p>
+            <p>
+              <strong>Description:</strong> <span id="modalDescription"></span>
+            </p>
+            <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+            <div id="modalImages" class="row"></div>
+            <div class="mt-4 d-flex gap-2">
+              <button class="btn btn-success" id="resolveBtn">
+                Mark as Resolved
+              </button>
+              <button class="btn btn-danger" id="deleteBtn">
+                Delete Report
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const token = localStorage.getItem("adminToken");
+      let selectedReportId = null;
+
+      if (!token) {
+        alert("Unauthorized. Redirecting to login...");
+        window.location.href = "login.html";
+      }
+
+      function loadReports(isArchived = false) {
+        const endpoint = isArchived
+          ? "https://ecobantay-backend.onrender.com/api/reports/archived"
+          : "https://ecobantay-backend.onrender.com/api/reports";
+
+        fetch(endpoint)
+          .then((res) => res.json())
+          .then((data) => {
+            const table = document.getElementById("reportTable");
+            table.innerHTML = "";
+            data.forEach((report) => {
+              const row = document.createElement("tr");
+              row.innerHTML = `
+          <td>${report._id}</td>
+          <td>${report.type}</td>
+          <td><span class="badge ${
+            report.status === "Resolved" ? "badge-resolved" : "badge-pending"
+          }">${report.status || "Pending"}</span></td>
+          <td>${new Date(report.createdAt).toLocaleString()}</td>
+          <td><button class="btn btn-sm btn-primary" onclick='viewReport(${JSON.stringify(
+            report
+          )})'>View</button></td>
+        `;
+              table.appendChild(row);
+            });
+          })
+          .catch((err) => console.error("Error fetching reports:", err));
+      }
+
+      function viewReport(report) {
+        selectedReportId = report._id;
+        document.getElementById("modalReporter").innerText =
+          report.name || "Unknown";
+        document.getElementById("modalType").innerText = report.type;
+        document.getElementById("modalLocation").innerText =
+          report.location || "N/A";
+        document.getElementById("modalDescription").innerText =
+          report.description || "No description";
+        document.getElementById("modalStatus").innerText =
+          report.status || "Pending";
+
+        const imageContainer = document.getElementById("modalImages");
+        imageContainer.innerHTML = "";
+        (report.images || []).forEach((img) => {
+          const col = document.createElement("div");
+          col.className = "col-md-6";
+          const fullUrl = img.startsWith("uploads")
+            ? `https://ecobantay-backend.onrender.com/${img}`
+            : img;
+          col.innerHTML = `<img src="${fullUrl}" class="modal-img" />`;
+          imageContainer.appendChild(col);
+        });
+
+        new bootstrap.Modal(document.getElementById("reportModal")).show();
+      }
+
+      document.getElementById("resolveBtn").addEventListener("click", () => {
+        if (!selectedReportId) return;
+
+        fetch(
+          `https://ecobantay-backend.onrender.com/api/reports/${selectedReportId}/resolve`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+          }
+        )
+          .then((res) => {
+            if (!res.ok) throw new Error("Failed to update");
+            return res.json();
+          })
+          .then(() => {
+            loadReports(); // Refresh the table
+            bootstrap.Modal.getInstance(
+              document.getElementById("reportModal")
+            ).hide();
+          })
+          .catch((err) => console.error("❌ Update error:", err));
+      });
+
+      document.getElementById("deleteBtn").addEventListener("click", () => {
+        if (!selectedReportId) return;
+        if (!confirm("Are you sure you want to delete this report?")) return;
+        fetch(`https://ecobantay-backend.onrender.com/api/reports/${selectedReportId}`, {
+          method: "DELETE",
+        }).then(() => {
+          loadReports();
+          bootstrap.Modal.getInstance(
+            document.getElementById("reportModal")
+          ).hide();
+        });
+      });
+
+      document.querySelector(".logout-btn").addEventListener("click", () => {
+        localStorage.removeItem("adminToken");
+        window.location.href = "login.html";
+      });
+      // ✅ Fetch Admin Name for Sidebar
+      fetch("https://ecobantay-backend.onrender.com/api/admin/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Unauthorized");
+          return res.json();
+        })
+        .then((data) => {
+          document.getElementById("adminName").innerText =
+            data.name || `${data.firstName} ${data.lastName}` || "Admin";
+        })
+        .catch((err) => {
+          console.error("❌ Failed to load admin name:", err);
+          document.getElementById("adminName").innerText = "Admin";
+        });
+
+      loadReports();
+
+      function exportExcel() {
+  const table = document.getElementById("reportTable");
+  const rows = [];
+
+  // Header row
+  rows.push(["Report ID", "Report Title", "Status", "Submitted"]);
+
+  // Table rows
+  table.querySelectorAll("tr").forEach(tr => {
+    const cols = tr.querySelectorAll("td");
+    if (cols.length > 0) {
+      rows.push([
+        cols[0].innerText.trim(),
+        cols[1].innerText.trim(),
+        cols[2].innerText.trim(),
+        cols[3].innerText.trim(),
+      ]);
+    }
+  });
+
+  // Create worksheet
+  const worksheet = XLSX.utils.aoa_to_sheet(rows);
+
+  // Ensure style object exists
+  if (!worksheet["!cols"]) worksheet["!cols"] = [];
+
+  // Auto column width
+  worksheet['!cols'] = [
+    { wch: 25 },
+    { wch: 25 },
+    { wch: 15 },
+    { wch: 25 },
+  ];
+
+  // APPLY LIGHT GREEN HEADER STYLE
+  const headerCells = ["A1", "B1", "C1", "D1"];
+  headerCells.forEach(cell => {
+    if (worksheet[cell]) {
+      worksheet[cell].s = {
+        fill: { fgColor: { rgb: "C6EFCE" } }, // Light green
+        font: { bold: true, color: { rgb: "000000" } },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: {
+          top: { style: "thin", color: { rgb: "000000" }},
+          left: { style: "thin", color: { rgb: "000000" }},
+          bottom: { style: "thin", color: { rgb: "000000" }},
+          right: { style: "thin", color: { rgb: "000000" }},
+        }
+      };
+    }
+  });
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Reports");
+
+  // *** Important — this writes styles correctly ***
+  XLSX.writeFile(workbook, "EcoBantay-Waste-Reports.xlsx", { cellStyles: true });
+}
+
+    </script>
+  </body>
+</html>

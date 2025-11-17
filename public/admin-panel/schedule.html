@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>EcoBantay - Scheduling</title>
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/ecobantay-icon.png">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+      }
+      #sidebar {
+        min-height: 100vh;
+        width: 240px;
+        background-image: url("assets/background.png");
+        background-size: cover;
+        background-position: center;
+        color: white;
+        position: fixed;
+      }
+      #sidebar .nav-link {
+        color: white;
+        font-weight: 500;
+        padding: 10px 20px;
+      }
+      #sidebar .nav-link:hover,
+      #sidebar .nav-link.active {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+      }
+      .dashboard-wrapper {
+        margin-left: 240px;
+        padding: 2rem;
+      }
+      .avatar {
+        width: 60px;
+        height: 60px;
+        background-color: white;
+        color: #2e8b57;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin: 0 auto 10px;
+      }
+      .logout-btn {
+        width: 100%;
+        margin-top: auto;
+      }
+      .guide-img {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid #e1e1e1;
+        margin: 15px 0;
+        transition: transform 0.2s ease-in-out;
+      }
+      .guide-img:hover {
+        transform: scale(1.02);
+      }
+      .guide-section h6 {
+        color: #198754;
+        font-weight: 700;
+      }
+      .guide-section ol li {
+        margin-bottom: 5px;
+      }
+      .guide-divider {
+        border: 0;
+        border-top: 2px dashed #cce3d5;
+        margin: 1.5rem 0;
+      }
+      .guide-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 12px;
+      }
+      .guide-card {
+        border: 1px solid #e7efe9;
+        border-radius: 12px;
+        background: #fff;
+        padding: 10px;
+      }
+      .guide-card img {
+        width: 100%;
+        border-radius: 8px;
+        cursor: zoom-in;
+      }
+      .guide-caption {
+        font-size: 0.9rem;
+        color: #466a55;
+        margin-top: 6px;
+      }
+
+      .section-title {
+        background: #c8f7c5;
+        padding: 12px 18px;
+        border-left: 6px solid #53b052;
+        border-radius: 8px;
+        font-size: 1.3rem;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="d-flex">
+      <!-- Sidebar -->
+      <div id="sidebar" class="d-flex flex-column p-3">
+        <div class="text-center mb-4">
+          <div class="avatar">👤</div>
+          <strong id="adminName">Loading...</strong><br />
+          <small>Admin</small>
+        </div>
+        <ul class="nav nav-pills flex-column mb-auto">
+          <li><a href="index.html" class="nav-link">Dashboard</a></li>
+          <li><a href="users.html" class="nav-link">Users</a></li>
+          <li><a href="employees.html" class="nav-link">Employees</a></li>
+          <li><a href="request.html" class="nav-link">Requests</a></li>
+          <li><a href="reports.html" class="nav-link">Reports</a></li>
+          <li><a href="news.html" class="nav-link">News</a></li>
+          <li><a href="trucklogs.html" class="nav-link">Truck Logs</a></li>
+          <li><a href="trucks.html" class="nav-link">Trucks</a></li>
+          <li>
+            <a href="schedule.html" class="nav-link active">Scheduling</a>
+          </li>
+          <li><a href="dispatch.html" class="nav-link">Dispatch</a></li>
+                    <li><a href="generate-qr.html" class="nav-link">QR Code Generation</a></li>
+
+        </ul>
+        <button class="btn btn-light logout-btn">Log Out</button>
+      </div>
+
+      <!-- Dashboard content -->
+      <div class="dashboard-wrapper container-fluid">
+      <div class="section-title">Collection Schedules</div>
+        <div class="d-flex align-items-center mb-3 gap-2">
+          <button
+            class="btn btn-success"
+            data-bs-toggle="modal"
+            data-bs-target="#createScheduleModal"
+          >
+            ➕ Create Schedule
+          </button>
+          <button
+            class="btn btn-outline-success"
+            data-bs-toggle="modal"
+            data-bs-target="#manageRoutesModal"
+          >
+            🗺️ Manage Routes
+          </button>
+          <button
+            class="btn btn-outline-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#adminGuideModal"
+          >
+            📘 Admin Guide
+          </button>
+        </div>
+
+        <input
+          type="text"
+          id="searchSchedule"
+          class="form-control mb-3"
+          placeholder="Search by barangay, street, target, or route"
+        />
+
+        <table
+          class="table table-bordered table-hover table-striped align-middle"
+        >
+          <thead class="table-success">
+            <tr>
+              <th>Barangay</th>
+              <th>Street</th>
+              <th>Target</th>
+              <th>Shift</th>
+              <th>Route</th>
+              <th>Days</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="scheduleTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Create Schedule Modal -->
+    <div class="modal fade" id="createScheduleModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form id="createScheduleForm">
+            <div class="modal-header">
+              <h5 class="modal-title">Create Collection Schedule</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <input
+                type="text"
+                name="barangay"
+                class="form-control mb-2"
+                placeholder="Barangay"
+                required
+              />
+              <input
+                type="text"
+                name="street"
+                class="form-control mb-2"
+                placeholder="Street (optional)"
+              />
+              <input
+                type="text"
+                name="target"
+                class="form-control mb-2"
+                placeholder="Target (optional)"
+              />
+              <select name="shift" class="form-control mb-2" required>
+                <option value="" disabled selected>Select Shift</option>
+                <option value="Morning">Morning</option>
+                <option value="Afternoon">Afternoon</option>
+                <option value="Evening">Evening</option>
+              </select>
+              <select
+                name="routeId"
+                id="createRouteSelect"
+                class="form-control mb-2"
+                required
+              >
+                <option value="" disabled selected>Select Route</option>
+              </select>
+              <label>Days:</label><br />
+              <div class="d-flex flex-wrap">
+                <div class="form-check me-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    name="days"
+                    value="Mon"
+                  />
+                  Mon
+                </div>
+                <div class="form-check me-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    name="days"
+                    value="Tue"
+                  />
+                  Tue
+                </div>
+                <div class="form-check me-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    name="days"
+                    value="Wed"
+                  />
+                  Wed
+                </div>
+                <div class="form-check me-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    name="days"
+                    value="Thu"
+                  />
+                  Thu
+                </div>
+                <div class="form-check me-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    name="days"
+                    value="Fri"
+                  />
+                  Fri
+                </div>
+                <div class="form-check me-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    name="days"
+                    value="Sat"
+                  />
+                  Sat
+                </div>
+                <div class="form-check me-3">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    name="days"
+                    value="Sun"
+                  />
+                  Sun
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Create</button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Manage Routes Modal -->
+    <div class="modal fade" id="manageRoutesModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <form id="createRouteForm">
+            <div class="modal-header">
+              <h5 class="modal-title">Manage Routes</h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Route Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    id="routeNameInput"
+                    class="form-control"
+                    placeholder="e.g. Route 1 - Marulas"
+                    required
+                  />
+                  <div id="routeDuplicateWarning" class="text-danger fw-bold mt-1" style="display:none;">
+  ⚠ This route name already exists. Please choose another name.
+</div>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Barangay (optional)</label>
+                  <input
+                    type="text"
+                    name="barangay"
+                    class="form-control"
+                    placeholder="e.g. Marulas"
+                  />
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Waypoints (lat,lng per line)</label>
+                  <textarea
+                    name="waypointsText"
+                    class="form-control"
+                    rows="6"
+                    placeholder="14.7012,120.9611&#10;14.7025,120.9630"
+                  ></textarea>
+                  <div class="form-text">
+                    Paste each coordinate pair or street name per line (system
+                    will convert it automatically).
+                  </div>
+                </div>
+              </div>
+              <hr class="my-3" />
+              <h6>Existing Routes</h6>
+              <div id="routesList" class="list-group small"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-success">Save Route</button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Guide Modal -->
+    <div class="modal fade" id="adminGuideModal" tabindex="-1">
+      <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title">📘 EcoBantay Admin Guide</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="guide-section">
+              <h6 class="fw-bold">🗺️ How to Save a Route</h6>
+              <ol>
+                <li>Click <strong>Manage Routes</strong>.</li>
+                <li>
+                  Enter <strong>Route Name</strong> at (optional)
+                  <strong>Barangay</strong>.
+                </li>
+                <li>Kung wala kang coordinates, kumuha muna sa Google Maps.</li>
+                <li>
+                  Lagyan ng <strong>street names</strong> o
+                  <strong>lat,lng</strong> per line.
+                </li>
+                <li>Click <strong>Save Route</strong>.</li>
+              </ol>
+
+              <div class="guide-grid">
+                <div class="guide-card">
+                  <img
+                    src="assets/Step 1.png"
+                    alt="Open Manage Routes"
+                    class="guide-img"
+                  />
+                  <div class="guide-caption">Step 1 — Open Manage Routes</div>
+                </div>
+
+                <div class="guide-card">
+                  <img
+                    src="assets/Step 2.png"
+                    alt="Fill Route Name"
+                    class="guide-img"
+                  />
+                  <div class="guide-caption">
+                    Step 2 — Fill Route Name & Barangay
+                  </div>
+                </div>
+
+                <!-- 🆕 moved Google Maps tutorial BEFORE Step 3 -->
+                <div class="guide-card" style="background: #e8f5e9">
+                  <img
+                    src="assets/go-to-google-maps.png"
+                    alt="Get Coordinates from Google Maps"
+                    class="guide-img"
+                  />
+                  <div class="guide-caption">
+                    <strong>Tip:</strong> Open
+                    <a href="https://maps.google.com" target="_blank"
+                      >Google Maps</a
+                    >, right-click your target location, choose
+                    <em>"What's here?"</em>, then copy the latitude and
+                    longitude (e.g. <code>14.7012, 120.9611</code>) and paste it
+                    into the Waypoints box.
+                  </div>
+                </div>
+
+                <div class="guide-card">
+  <img src="assets/Step 3.png" alt="Enter Waypoints" class="guide-img" />
+  <div class="guide-caption">
+    Step 3 — Enter Waypoints <br />
+    <small>
+      💡 Note: The first line is for the <strong>starting coordinate</strong>. 
+      After typing it, press <strong>Enter</strong>, and the second line is for the 
+      <strong>ending coordinate</strong> of the route.
+    </small>
+  </div>
+</div>
+
+
+                <div class="guide-card">
+                  <img
+                    src="assets/Step 4.png"
+                    alt="Save Route"
+                    class="guide-img"
+                  />
+                  <div class="guide-caption">Step 4 — Save Route</div>
+                </div>
+
+                <div class="guide-card">
+                  <img
+                    src="assets/Step 5.png"
+                    alt="Verify in list"
+                    class="guide-img"
+                  />
+                  <div class="guide-caption">
+                    Step 5 — Verify in Existing Routes
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="guide-divider" />
+
+            <div class="guide-section">
+              <h6 class="fw-bold">📅 How to Create a Collection Schedule</h6>
+              <ol>
+                <li>Click <strong>Create Schedule</strong>.</li>
+                <li>
+                  Fill <strong>Barangay/Street</strong> at piliin ang
+                  <strong>Shift</strong>.
+                </li>
+                <li>
+                  Pumili ng <strong>Route</strong> at piliin ang
+                  <strong>Days</strong>.
+                </li>
+                <li>Click <strong>Create</strong>.</li>
+              </ol>
+
+              <div class="guide-grid">
+  <div class="guide-card">
+    <div class="guide-caption">
+      <strong>Step 1 — Open Create Schedule</strong><br />
+      Click the <strong>Create Schedule</strong> button on the main Scheduling page.
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-caption">
+      <strong>Step 2 — Fill Details</strong><br />
+      Enter the <strong>Barangay</strong> and <strong>Street</strong>, then select the preferred <strong>Shift</strong>.
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-caption">
+      <strong>Step 3 — Pick Route & Days</strong><br />
+      Choose the appropriate <strong>Route</strong> from the dropdown and select the collection <strong>Days</strong>.
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="guide-caption">
+      <strong>Step 4 — Create</strong><br />
+      Review your details and click <strong>Create</strong> to save the schedule.
+    </div>
+  </div>
+</div>
+
+          </div>
+
+          <div class="modal-footer bg-light">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lightbox Modal -->
+      <div class="modal fade" id="lightboxModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+          <div class="modal-content bg-dark">
+            <div class="modal-header border-0">
+              <button
+                type="button"
+                class="btn-close btn-close-white ms-auto"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body text-center">
+              <img
+                id="lightboxImg"
+                src=""
+                alt=""
+                style="width: 100%; max-height: 78vh; object-fit: contain"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+  const API_BASE = "https://ecobantay-backend.onrender.com";
+  const token = localStorage.getItem("adminToken");
+
+  if (!token) {
+    alert("Unauthorized. Redirecting to login...");
+    window.location.href = "login.html";
+  }
+
+  // Load Admin Name
+  fetch(`${API_BASE}/api/admin/profile`, {
+    headers: { Authorization: `Bearer ${token}` },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      document.getElementById("adminName").textContent = data.name || "Admin";
+    });
+
+  // Elements
+  const scheduleTableBody = document.getElementById("scheduleTable");
+  const searchInput = document.getElementById("searchSchedule");
+  const createRouteSelect = document.getElementById("createRouteSelect");
+  const routesList = document.getElementById("routesList");
+  const createRouteForm = document.getElementById("createRouteForm");
+  const routeNameInput = document.getElementById("routeNameInput"); 
+  const routeDuplicateWarning = document.getElementById("routeDuplicateWarning");
+
+  let schedules = [];
+  let ROUTES = [];
+
+  // Parse waypoints from textarea
+  function parseWaypoints(text) {
+    return text
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .map((line, idx) => {
+        const [lat, lng] = line.split(",").map(Number);
+        if (isNaN(lat) || isNaN(lng))
+          throw new Error(`Invalid line ${idx + 1}: ${line}`);
+        return { lat, lng, order: idx + 1 };
+      });
+  }
+
+  // Fetch Routes
+  const fetchRoutes = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/trucks/routes`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await res.json();
+      ROUTES = data.routes || data || [];
+
+      // Populate dropdown
+      createRouteSelect.innerHTML =
+        '<option value="" disabled selected>Select Route</option>' +
+        ROUTES.map(
+          (r) =>
+            `<option value="${r._id}">${r.name}${
+              r.barangay ? " - " + r.barangay : ""
+            }</option>`
+        ).join("");
+
+      refreshRoutesListUI();
+    } catch (e) {
+      console.error("Failed to fetch routes", e);
+    }
+  };
+
+  // UI for route list
+  function refreshRoutesListUI() {
+    routesList.innerHTML = ROUTES.length
+      ? ROUTES.map(
+          (r) =>
+            `<div class="list-group-item"><strong>${r.name}</strong>${
+              r.barangay
+                ? ` - <span class='text-muted'>${r.barangay}</span>`
+                : ""
+            }</div>`
+        ).join("")
+      : `<div class="list-group-item text-muted">No routes yet.</div>`;
+  }
+
+  // LIVE duplicate check on typing
+  if (routeNameInput) {
+    routeNameInput.addEventListener("input", () => {
+      const typedName = routeNameInput.value.trim().toLowerCase();
+
+      const exists = ROUTES.some(
+        (r) => r.name.trim().toLowerCase() === typedName
+      );
+
+      if (exists) {
+        routeDuplicateWarning.style.display = "block";
+        routeNameInput.classList.add("is-invalid");
+      } else {
+        routeDuplicateWarning.style.display = "none";
+        routeNameInput.classList.remove("is-invalid");
+      }
+    });
+  }
+
+  // Handle save route
+  createRouteForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const fd = new FormData(createRouteForm);
+    const name = fd.get("name").trim();
+    const barangay = fd.get("barangay").trim();
+    const waypointsText = fd.get("waypointsText").trim();
+
+    if (!name || !waypointsText)
+      return alert("Please fill in route name and waypoints.");
+
+    // FINAL duplicate check before saving
+    const duplicate = ROUTES.some(
+      (r) => r.name.trim().toLowerCase() === name.toLowerCase()
+    );
+
+    if (duplicate) {
+      alert("This route name already exists. Please choose another name.");
+      return;
+    }
+
+    let waypoints;
+    try {
+      waypoints = parseWaypoints(waypointsText);
+    } catch (err) {
+      return alert(err.message);
+    }
+
+    const payload = { name, barangay, route: waypoints };
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/trucks/routes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await resp.json();
+
+      if (!resp.ok) throw new Error(data.error || data.message);
+
+      alert("Route saved!");
+      createRouteForm.reset();
+      routeDuplicateWarning.style.display = "none";
+      routeNameInput.classList.remove("is-invalid");
+
+      fetchRoutes();
+    } catch (err) {
+      console.error("Failed to save route:", err);
+      alert("Failed to save route: " + err.message);
+    }
+  });
+
+  // Helper for displaying route name
+  const routeName = (id) => {
+    const r = ROUTES.find((x) => x._id === id);
+    return r ? r.name : "-";
+  };
+
+  // Fetch Schedules
+  const fetchSchedules = () => {
+    fetch(`${API_BASE}/api/admin/schedules`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        schedules = data.schedules || data;
+        renderSchedules(schedules);
+      });
+  };
+
+  // Render schedule table
+  const renderSchedules = (list) => {
+    scheduleTableBody.innerHTML = "";
+    list.forEach((s) => {
+      scheduleTableBody.innerHTML += `
+        <tr>
+          <td>${s.barangay || "-"}</td>
+          <td>${s.street || "-"}</td>
+          <td>${s.target || "-"}</td>
+          <td>${s.shift || "-"}</td>
+          <td>${routeName(s.routeId)}</td>
+          <td>${s.days ? s.days.join(", ") : "-"}</td>
+          <td>
+            <button class="btn btn-sm btn-primary" onclick="editSchedule('${s._id}')">Edit</button>
+            <button class="btn btn-sm btn-danger" onclick="deleteSchedule('${s._id}')">Delete</button>
+          </td>
+        </tr>`;
+    });
+  };
+
+  // Search
+  searchInput.addEventListener("input", (e) => {
+    const q = e.target.value.toLowerCase();
+    const filtered = schedules.filter(
+      (s) =>
+        (s.barangay || "").toLowerCase().includes(q) ||
+        (s.street || "").toLowerCase().includes(q) ||
+        (s.target || "").toLowerCase().includes(q) ||
+        routeName(s.routeId).toLowerCase().includes(q)
+    );
+    renderSchedules(filtered);
+  });
+
+  // Add schedule
+  const addScheduleForm = document.getElementById("createScheduleForm");
+  addScheduleForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const fd = new FormData(addScheduleForm);
+
+    const payload = {
+      barangay: fd.get("barangay"),
+      street: fd.get("street"),
+      target: fd.get("target"),
+      shift: fd.get("shift"),
+      routeId: fd.get("routeId"),
+      days: fd.getAll("days"),
+    };
+
+    fetch(`${API_BASE}/api/admin/schedules`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    })
+      .then((res) => res.json())
+      .then(() => {
+        addScheduleForm.reset();
+        createRouteSelect.selectedIndex = 0;
+        fetchSchedules();
+        bootstrap.Modal.getInstance(
+          document.getElementById("createScheduleModal")
+        ).hide();
+      });
+  });
+
+  // Delete schedule
+  window.deleteSchedule = (id) => {
+    if (!confirm("Are you sure?")) return;
+
+    fetch(`${API_BASE}/api/admin/schedules/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    }).then(() => fetchSchedules());
+  };
+
+  // Init
+  Promise.resolve().then(fetchRoutes).then(fetchSchedules);
+
+  // Lightbox handler
+  document.addEventListener("click", (e) => {
+    const img = e.target.closest(".guide-img");
+    if (!img) return;
+
+    const modalEl = document.getElementById("lightboxModal");
+    document.getElementById("lightboxImg").src = img.src;
+
+    const m = new bootstrap.Modal(modalEl);
+    m.show();
+  });
+</script>
+  </body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" sizes="64x64" href="assets/ecobantay-icon.png">
+    <title>EcoBantay Admin Dashboard</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+      }
+      #sidebar {
+        min-height: 100vh;
+        width: 240px;
+        background-image: url("assets/background.png");
+        background-size: cover;
+        background-position: center;
+        color: white;
+        position: fixed;
+      }
+      #sidebar .nav-link {
+        color: white;
+        font-weight: 500;
+        padding: 10px 20px;
+      }
+      #sidebar .nav-link:hover,
+      #sidebar .nav-link.active {
+        background-color: rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+      }
+      .dashboard-wrapper {
+        margin-left: 240px;
+        padding: 2rem;
+        background-color: #f1f3f5;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .dashboard-card {
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        font-size: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      .logout-btn {
+        width: 100%;
+        margin-top: auto;
+      }
+
+      .avatar {
+        width: 60px;
+        height: 60px;
+        background-color: white;
+        color: #2e8b57;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin: 0 auto 10px;
+      }
+    </style>
+  </head>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <body>
+    <div class="d-flex">
+      <!-- Sidebar -->
+      <div id="sidebar" class="d-flex flex-column p-3">
+        <div class="text-center mb-4">
+          <div class="avatar">👤</div>
+          <strong id="adminName">Loading...</strong><br />
+          <small>Admin</small>
+        </div>
+        <ul class="nav nav-pills flex-column mb-auto">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link active">Dashboard</a>
+          </li>
+          <li><a href="users.html" class="nav-link">Users</a></li>
+          <li><a href="employees.html" class="nav-link">Employees</a></li>
+          <li><a href="request.html" class="nav-link">Requests</a></li>
+          <li><a href="reports.html" class="nav-link">Reports</a></li>
+          <li><a href="news.html" class="nav-link">News</a></li>
+          <li><a href="trucklogs.html" class="nav-link">Truck Logs</a></li>
+          <li><a href="trucks.html" class="nav-link">Trucks</a></li>
+          <li> <a href="schedule.html" class="nav-link">Scheduling</a></li>
+          <li> <a href="dispatch.html" class="nav-link">Dispatch</a></li>
+          <li><a href="generate-qr.html" class="nav-link">QR Code Generation</a></li>
+
+        </ul>
+        <button class="btn btn-light logout-btn">Log Out</button>
+      </div>
+
+      <!-- Dashboard Content -->
+      <div class="dashboard-wrapper container-fluid">
+        <div>
+          <div class="row g-4">
+            <div class="col-xl-3 col-lg-4 col-md-6">
+              <div class="dashboard-card bg-success text-white">
+                <div class="d-flex align-items-center mb-3">
+                  <i class="bi bi-people-fill fs-2 me-3"></i>
+                  <h5 class="m-0">Total Users</h5>
+                </div>
+                <h2 id="totalUsers" class="text-white fw-bold text-center">
+                  0
+                </h2>
+              </div>
+            </div>
+
+            <div class="col-xl-3 col-lg-4 col-md-6">
+              <div class="dashboard-card bg-info text-white">
+                <div class="d-flex align-items-center mb-3">
+                  <i class="bi bi-truck-front-fill fs-2 me-3"></i>
+                  <h5 class="m-0">All Trucks</h5>
+                </div>
+                <h2 id="trucksAvailable" class="text-white fw-bold text-center">
+                  0/0
+                </h2>
+              </div>
+            </div>
+
+            <div class="col-xl-3 col-lg-4 col-md-6">
+              <div class="dashboard-card bg-warning text-dark">
+                <div class="d-flex align-items-center mb-3">
+                  <i class="bi bi-person-badge-fill fs-2 me-3"></i>
+                  <h5 class="m-0">Drivers Available</h5>
+                </div>
+                <h2 id="driversAvailable" class="fw-bold text-center">0/0</h2>
+              </div>
+            </div>
+
+            <div class="col-xl-3 col-lg-4 col-md-6">
+              <div class="dashboard-card bg-danger text-white">
+                <div class="d-flex align-items-center mb-3">
+                  <i class="bi bi-exclamation-circle-fill fs-2 me-3"></i>
+                  <h5 class="m-0">Pending Tickets</h5>
+                </div>
+                <h2 id="pendingRequests" class="text-white fw-bold text-center">
+                  0
+                </h2>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-md-6">
+              <div class="dashboard-card bg-success text-white">
+                <div class="d-flex align-items-center mb-3">
+                  <i class="bi bi-check-circle-fill fs-2 me-3"></i>
+                  <h5 class="m-0">Completed Logs</h5>
+                </div>
+                <h2 id="completedLogs" class="text-white fw-bold text-center">
+                  0
+                </h2>
+              </div>
+            </div>
+
+            <!-- ✅ In Progress Logs -->
+            <div class="col-xl-3 col-lg-4 col-md-6">
+              <div class="dashboard-card bg-warning text-dark">
+                <div class="d-flex align-items-center mb-3">
+                  <i class="bi bi-hourglass-split fs-2 me-3"></i>
+                  <h5 class="m-0">In Progress Logs</h5>
+                </div>
+                <h2 id="inProgressLogs" class="fw-bold text-center">0</h2>
+              </div>
+            </div>
+            <div class="col-xl-3 col-lg-4 col-md-6">
+              <div class="dashboard-card bg-primary text-white">
+                <div class="d-flex align-items-center mb-3">
+                  <i class="bi bi-truck fs-2 me-3"></i>
+                  <h5 class="m-0">Most Used Truck</h5>
+                </div>
+                <h2 id="mostUsedTruck" class="text-white fw-bold text-center">
+                  --
+                </h2>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col-md-6 offset-md-3">
+              <div class="card p-3 shadow-sm">
+                <h6 class="text-center mb-2">Truck Status Breakdown</h6>
+                <canvas id="truckPieChart" style="max-height: 180px"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Footer -->
+        <div class="text-muted text-center mt-5 small">
+          EcoBantay Admin Dashboard © 2025 | For Internal Use Only
+        </div>
+      </div>
+    </div>
+
+
+
+    <script>
+      const token = localStorage.getItem("adminToken");
+      if (!token) {
+        alert("Unauthorized. Redirecting to login...");
+        window.location.href = "login.html";
+      }
+
+      // ✅ Fetch Admin Name
+      fetch("https://ecobantay-backend.onrender.com/api/admin/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => {
+          if (!res.ok) throw new Error("Unauthorized");
+          return res.json();
+        })
+        .then((data) => {
+          document.getElementById("adminName").innerText =
+            data.name || `${data.firstName} ${data.lastName}` || "Admin";
+        })
+        .catch((err) => {
+          console.error("❌ Failed to load admin name:", err);
+          document.getElementById("adminName").innerText = "Admin";
+        });
+
+      // ✅ Total Users
+      fetch("https://ecobantay-backend.onrender.com/api/admin/total-users", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById("totalUsers").innerText = data.count;
+        })
+        .catch((err) => {
+          console.error("❌ Failed to fetch total users:", err);
+          document.getElementById("totalUsers").innerText = "Error";
+        });
+
+      // ✅ Dynamic Truck Status
+      fetch("https://ecobantay-backend.onrender.com/api/admin/truck-status-summary", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById(
+            "trucksAvailable"
+          ).innerText = `${data.available}/${data.total}`;
+        })
+        .catch((err) => {
+          console.error("❌ Failed to fetch truck status:", err);
+          document.getElementById("trucksAvailable").innerText = "Error";
+        });
+
+      // ✅ Drivers Status (User model with role: "driver")
+      fetch("https://ecobantay-backend.onrender.com/api/admin/drivers-status", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById(
+            "driversAvailable"
+          ).innerText = `${data.available}/${data.total}`;
+        });
+
+      // ✅ Pending Requests (Report + Pickup with status: "pending")
+      fetch("https://ecobantay-backend.onrender.com/api/admin/pending-requests", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById("pendingRequests").innerText = data.total;
+        })
+        .catch((err) => {
+          console.error("❌ Failed to fetch pending requests:", err);
+          document.getElementById("pendingRequests").innerText = "Error";
+        });
+
+      // ✅ Logout
+      document.querySelector(".logout-btn").addEventListener("click", () => {
+        localStorage.removeItem("adminToken");
+        window.location.href = "login.html";
+      });
+
+      fetch("https://ecobantay-backend.onrender.com/api/truck-logs/summary", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById("completedLogs").textContent =
+            data.completed || 0;
+          document.getElementById("inProgressLogs").textContent =
+            data.inProgress || 0;
+          document.getElementById("mostUsedTruck").textContent =
+            data.mostUsedTruck || "--";
+        })
+        .catch((err) => console.error("❌ Error fetching summary:", err));
+
+      fetch("https://ecobantay-backend.onrender.com/api/admin/truck-status-summary", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          const ctx = document.getElementById("truckPieChart").getContext("2d");
+          new Chart(ctx, {
+            type: "pie",
+            data: {
+              labels: ["Available", "Under Maintenance", "Inactive"],
+              datasets: [
+                {
+                  data: [data.available, data.maintenance, data.inactive],
+                  backgroundColor: ["#28a745", "#ffc107", "#6c757d"],
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: { position: "bottom" },
+                title: { display: false },
+              },
+            },
+          });
+        })
+        .catch((err) => {
+          console.error("❌ Chart load error:", err);
+        });
+    </script>
+  </body>
+</html>
